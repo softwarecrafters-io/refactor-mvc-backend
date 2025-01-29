@@ -1,5 +1,6 @@
 import express, { Request, Response, RequestHandler } from 'express';
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 import {
     createOrder,
     getAllOrders,
@@ -8,8 +9,12 @@ import {
     deleteOrder
 } from './controllers/orderController';
 
-const DB_URL = 'mongodb://localhost:27017/db_orders';
-const PORT = 3002;
+dotenv.config({
+    path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env'
+});
+
+const DB_URL = process.env.MONGODB_URI as string;
+const PORT = process.env.PORT;
 
 mongoose
     .connect(DB_URL)
