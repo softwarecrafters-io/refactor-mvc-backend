@@ -25,19 +25,7 @@ describe('POST /orders', () => {
     });
 
     it('creates a new order successfully', async () => {
-        const orderData = {
-            items: [
-                {
-                    productId: "1",
-                    quantity: 1,
-                    price: 100
-                }
-            ],
-            shippingAddress: "Calle Test 0"
-        };
-        const response = await request(server)
-            .post('/orders')
-            .send(orderData);
+        const response = await createValidOrderRequest(server);
 
         expect(response.status).toBe(200);
         expect(response.text).toBe('Order created with total: 100');
@@ -82,4 +70,32 @@ describe('GET /orders', () => {
         expect(response.status).toBe(200);
         expect(response.body).toEqual([]);
     });
+
+    it('lists one order after creating it', async () => {
+        await createValidOrderRequest(server);
+
+        const response = await request(server)
+            .get('/orders');
+
+        expect(response.status).toBe(200);
+        expect(response.body.length).toBe(1);
+        expect(response.body[0]).toHaveProperty('items');
+        expect(response.body[0].shippingAddress).toBe("Calle Test 1");
+    });
 });
+
+async function createValidOrderRequest(server: Server) {
+    const order = {
+        items: [
+            {
+                productId: "1",
+                quantity: 1,
+                price: 100
+            }
+        ],
+        shippingAddress: "Calle Test 0"
+    };
+    return await request(server)
+        .post('/orders')
+        .send(order);
+}
