@@ -11,10 +11,11 @@ import { Server } from 'http';
 
 
 export async function createServer(port: number, dbUrl: string): Promise<Server> {
-    await mongoose
-        .connect(dbUrl)
-        .then(() => console.log('Connected to MongoDB'))
-        .catch((err) => console.error('Error connecting to MongoDB:', err));
+    if (mongoose.connection.readyState !== 0) {
+        await mongoose.disconnect();
+    }
+    await mongoose.connect(dbUrl);
+    console.log('Connected to MongoDB');
 
     const app = express();
     app.use(express.json());

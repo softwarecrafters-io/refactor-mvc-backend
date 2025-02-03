@@ -7,7 +7,7 @@ export const createOrder = async (req: Request, res: Response) => {
     const { items, discountCode, shippingAddress } = req.body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
-        return res.send('The order must have at least one item');
+        return res.status(400).send('The order must have at least one item');
     }
 
     let total = 0;
