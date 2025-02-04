@@ -98,7 +98,13 @@ export const completeOrder = async (req: Request, res: Response) => {
 
 // Delete order
 export const deleteOrder = async (req: Request, res: Response) => {
-    console.log("DELETE /orders/:id");
-    await OrderModel.findByIdAndDelete(req.params.id);
-    res.send('Order deleted');
+    try {
+        await OrderModel.findByIdAndDelete(req.params.id);
+        res.send('Order deleted');
+    } catch (error) {
+        if (error instanceof Error && error.name === 'CastError') {
+            return res.status(404).json('Order not found to delete');
+        }
+        res.status(500).send('Error deleting order');
+    }
 };
