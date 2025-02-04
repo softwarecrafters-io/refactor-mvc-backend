@@ -129,6 +129,40 @@ describe('DELETE /orders', () => {
     });
 });
 
+describe('POST /orders/:id/complete', () => {
+    let server: Server;
+    
+    beforeAll(async () => {
+        const dbUrl = process.env.MONGODB_URI as string;
+        server = await createServer(3002, dbUrl);
+    });
+
+    afterEach(async () => {
+        await mongoose.connection.dropDatabase();
+    });
+
+    afterAll(async () => {
+        await mongoose.connection.close();
+        await server.close();
+    });
+
+    it('completes a given valid order', async () => {
+        await createValidOrderRequest(server);
+        const response = await request(server)
+            .get('/orders');
+        const orderId = response.body[0]._id;
+        //Act
+        const completeResponse = await request(server)
+            .post(`/orders/${orderId}/complete`);
+        //Assert
+        expect(completeResponse.status).toBe(200);
+        expect(completeResponse.text).toBe(`Order with id ${orderId} completed`);
+        const getResponse = await request(server)
+            .get('/orders');
+        expect(getResponse.status).toBe(200);
+        expect(getResponse.body[0].status).toBe('COMPLETED');
+    });
+});
 
 async function createValidOrderRequest(server: Server) {
     const order = {
