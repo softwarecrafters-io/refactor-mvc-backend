@@ -103,12 +103,7 @@ describe('DELETE /orders', () => {
 
     it('deletes an order successfully', async () => {
         //Arrange
-        await createValidOrderRequest(server);
-        const response = await request(server)
-            .get('/orders');
-        expect(response.status).toBe(200);
-        expect(response.body.length).toBe(1);
-        const orderId = response.body[0]._id;
+        const orderId = await createOrder(server);
         //Act
         const deleteResponse = await request(server)
             .delete(`/orders/${orderId}`);
@@ -147,10 +142,8 @@ describe('POST /orders/:id/complete', () => {
     });
 
     it('completes a given valid order', async () => {
-        await createValidOrderRequest(server);
-        const response = await request(server)
-            .get('/orders');
-        const orderId = response.body[0]._id;
+        //Arrange
+        const orderId = await createOrder(server);
         //Act
         const completeResponse = await request(server)
             .post(`/orders/${orderId}/complete`);
@@ -162,7 +155,57 @@ describe('POST /orders/:id/complete', () => {
         expect(getResponse.status).toBe(200);
         expect(getResponse.body[0].status).toBe('COMPLETED');
     });
+
+    it('fails to complete an order that does not exist', async () => {
+        const completeResponse = await request(server)
+            .post('/orders/123/complete');
+        expect(completeResponse.status).toBe(404);
+        expect(completeResponse.text).toBe('Order not found to complete');
+    });
 });
+
+describe('PUT /orders/:id', () => {
+    let server: Server;
+    
+    beforeAll(async () => {
+        const dbUrl = process.env.MONGODB_URI as string;
+        server = await createServer(3002, dbUrl);
+    });
+
+    afterEach(async () => {
+        await mongoose.connection.dropDatabase();
+    });
+
+    afterAll(async () => {
+        await mongoose.connection.close();
+        await server.close();
+    });
+
+    it('updates address a given valid order', async () => {
+        const orderId = await createOrder(server);
+        const updateResponse = await request(server)
+            .put(`/orders/${orderId}`)
+            .send({
+                shippingAddress: "Updated address"
+            })
+        expect(updateResponse.status).toBe(200);
+        const getResponse = await request(server)
+            .get('/orders');
+        expect(getResponse.status).toBe(200);
+        expect(getResponse.body[0].shippingAddress).toBe("Updated address");
+    });
+
+    it('fails to update an order that does not exist', async () => {
+        const updateResponse = await request(server)
+            .put('/orders/123')
+            .send({
+                shippingAddress: "Updated address"
+            })
+        expect(updateResponse.status).toBe(404);
+        expect(updateResponse.text).toBe('Order not found');
+    });
+});
+
 
 async function createValidOrderRequest(server: Server) {
     const order = {
@@ -178,4 +221,11 @@ async function createValidOrderRequest(server: Server) {
     return await request(server)
         .post('/orders')
         .send(order);
+}
+
+async function createOrder(server: Server): Promise<string> {
+    await createValidOrderRequest(server);
+    const response = await request(server)
+        .get('/orders');
+    return response.body[0]._id;
 }
