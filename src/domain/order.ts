@@ -3,3 +3,4 @@ export enum OrderStatus {
     Completed = "COMPLETED"
 }
 
+export type DiscountCode = "DISCOUNT20";
