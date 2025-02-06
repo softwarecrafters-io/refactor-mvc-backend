@@ -4,3 +4,4 @@ export enum OrderStatus {
 }
 
 export type DiscountCode = "DISCOUNT20";
+

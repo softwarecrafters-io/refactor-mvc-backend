@@ -1,4 +1,4 @@
-import { Address, PositiveNumber } from "../../domain/valueObjects";
+import { Address, Id, PositiveNumber } from "../../domain/valueObjects";
 
 describe("A positive number", () => {
     it("allows a given positive value", () => {
@@ -20,5 +20,13 @@ describe("An address", () => {
     it("does not allow an empty address", () => {
         expect(() => Address.create("")).toThrow("Empty address is not allowed");
         expect(() => Address.create("     ")).toThrow("Empty address is not allowed");
+    });
+});
+
+
+describe("An id", () => {
+    it("generates a valid unique identifier", () => {
+        const id = Id.create();
+        expect(id.value.length).toBe(36);
     });
 });
