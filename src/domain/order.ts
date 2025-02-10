@@ -1,5 +1,5 @@
 import { DomainError } from "./domainError";
-import { Address } from "./valueObjects";
+import { Address, PositiveNumber } from "./valueObjects";
 
 import { Id, OrderItem } from "./valueObjects";
 
@@ -36,4 +36,12 @@ export class Order {
             throw new DomainError("The order must have at least one item");
         }
     }
+
+    calculateTotal(): PositiveNumber {
+        return this.items.reduce(
+            (total, item) => total.add(item.calculateSubtotal()), 
+            PositiveNumber.create(0)
+        );
+    }
+
 }

@@ -16,6 +16,13 @@ describe("A positive number", () => {
         
         expect(two.multiply(three)).toEqual(PositiveNumber.create(6));
     });
+
+    it("adds two given positive numbers", () => {
+        const two = PositiveNumber.create(2);
+        const three = PositiveNumber.create(3);
+        
+        expect(two.add(three)).toEqual(PositiveNumber.create(5));
+    });
 });
 
 describe("An address", () => {

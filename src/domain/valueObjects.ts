@@ -5,7 +5,7 @@ export class PositiveNumber {
     private constructor(private readonly value: number) {}
 
     static create(value: number): PositiveNumber {
-        if (value <= 0) {
+        if (value < 0) {
             throw new DomainError("Value must be positive");
         }
         return new PositiveNumber(value);
@@ -13,6 +13,10 @@ export class PositiveNumber {
 
     multiply(other: PositiveNumber): PositiveNumber {
         return new PositiveNumber(this.value * other.value);
+    }
+
+    add(other: PositiveNumber): PositiveNumber {
+        return new PositiveNumber(this.value + other.value);
     }
 
     equals(other: PositiveNumber): boolean {

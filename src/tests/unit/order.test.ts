@@ -17,4 +17,19 @@ describe("The Order", () => {
         expect(() => Order.create([], Address.create("123 Main St"), "DISCOUNT20")).toThrow("The order must have at least one item");
     });
 
+    it("calculates the total price for a given order with a single item", ()=>{
+        const order = Order.create([
+            new OrderItem(Id.create(), PositiveNumber.create(1), PositiveNumber.create(10)),
+        ], Address.create("123 Main St"));
+        expect(order.calculateTotal()).toEqual(PositiveNumber.create(10));
+    });
+
+    it("calculates the total price for a given order with multiple items", ()=>{
+        const order = Order.create([
+            new OrderItem(Id.create(), PositiveNumber.create(2), PositiveNumber.create(10)), 
+            new OrderItem(Id.create(), PositiveNumber.create(2), PositiveNumber.create(10)), 
+        ], Address.create("123 Main St"));
+        expect(order.calculateTotal()).toEqual(PositiveNumber.create(40));
+    });
+    
 });
