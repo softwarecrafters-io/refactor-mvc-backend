@@ -1,4 +1,4 @@
-import { Order } from "../../domain/order";
+import { Order, OrderStatus } from "../../domain/order";
 import { Address, Id, OrderItem, PositiveNumber } from "../../domain/valueObjects";
 
 describe("The Order", () => {
@@ -38,5 +38,27 @@ describe("The Order", () => {
             new OrderItem(Id.create(), PositiveNumber.create(2), PositiveNumber.create(10)), 
         ], Address.create("123 Main St"), "DISCOUNT20");
         expect(order.calculateTotal()).toEqual(PositiveNumber.create(32));
+    });
+
+    it("completes an given order with created status", ()=>{
+        const order = Order.create([
+            new OrderItem(Id.create(), PositiveNumber.create(2), PositiveNumber.create(10)), 
+            new OrderItem(Id.create(), PositiveNumber.create(2), PositiveNumber.create(10)), 
+        ], Address.create("123 Main St"), "DISCOUNT20");
+
+        order.complete();
+
+        expect(order.isCompleted()).toBe(true);
+    });
+
+    it("does not allow to complete an order with no created status", ()=>{
+        const order = Order.create([
+            new OrderItem(Id.create(), PositiveNumber.create(2), PositiveNumber.create(10)), 
+            new OrderItem(Id.create(), PositiveNumber.create(2), PositiveNumber.create(10)), 
+        ], Address.create("123 Main St"), "DISCOUNT20");
+
+        order.complete();
+        
+        expect(() => order.complete()).toThrow(`Cannot complete an order with status: ${OrderStatus.Completed}`);
     });
 });

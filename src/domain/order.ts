@@ -12,9 +12,9 @@ export type DiscountCode = "DISCOUNT20";
 
 export class Order {
     private constructor(
-        readonly id: Id,
-        readonly items: OrderItem[],
-        readonly shippingAddress: Address,
+        private readonly id: Id,
+        private readonly items: OrderItem[],
+        private readonly shippingAddress: Address,
         private status: OrderStatus,
         private readonly discountCode?: DiscountCode
     ) {}
@@ -50,5 +50,20 @@ export class Order {
             return total.multiply(PositiveNumber.create(0.8));
         }
         return total;
+    }
+
+    complete() {
+        this.ensureThatOrderCanBeCompleted();
+        this.status = OrderStatus.Completed;
+    }
+
+    private ensureThatOrderCanBeCompleted() {
+        if (this.status !== OrderStatus.Created) {
+            throw new DomainError(`Cannot complete an order with status: ${this.status}`);
+        }
+    }
+
+    isCompleted(): boolean {
+        return this.status === OrderStatus.Completed;
     }
 }
