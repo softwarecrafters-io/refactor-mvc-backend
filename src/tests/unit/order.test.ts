@@ -32,4 +32,11 @@ describe("The Order", () => {
         expect(order.calculateTotal()).toEqual(PositiveNumber.create(40));
     });
     
+    it("calculates the total price for a given order with multiple items and a discount code", ()=>{
+        const order = Order.create([
+            new OrderItem(Id.create(), PositiveNumber.create(2), PositiveNumber.create(10)), 
+            new OrderItem(Id.create(), PositiveNumber.create(2), PositiveNumber.create(10)), 
+        ], Address.create("123 Main St"), "DISCOUNT20");
+        expect(order.calculateTotal()).toEqual(PositiveNumber.create(32));
+    });
 });

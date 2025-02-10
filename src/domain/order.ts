@@ -38,10 +38,17 @@ export class Order {
     }
 
     calculateTotal(): PositiveNumber {
-        return this.items.reduce(
+        const total = this.items.reduce(
             (total, item) => total.add(item.calculateSubtotal()), 
             PositiveNumber.create(0)
         );
+        return this.applyDiscount(total);
     }
 
+    private applyDiscount(total: PositiveNumber): PositiveNumber {
+        if (this.discountCode === "DISCOUNT20") {
+            return total.multiply(PositiveNumber.create(0.8));
+        }
+        return total;
+    }
 }
