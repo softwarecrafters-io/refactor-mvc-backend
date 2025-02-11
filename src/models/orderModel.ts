@@ -25,6 +25,7 @@ const OrderSchema: Schema = new Schema({
     discountCode: { type: String, required: false },
     shippingAddress: { type: String },
     total: { type: Number, default: 0 },
+    id: { type: String },
 });
 
 export const OrderModel: Model<IOrder> = mongoose.model<IOrder>('Order', OrderSchema);

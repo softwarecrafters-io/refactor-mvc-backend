@@ -75,4 +75,20 @@ describe("The Order", () => {
         expect(dto.status).toBe(OrderStatus.Created);
         expect(dto.discountCode).toBe("DISCOUNT20");
     });
+
+    it("creates an order from a DTO", ()=>{
+        const dto = {
+            id: Id.create().value,
+            items: [new OrderItem(Id.create(), PositiveNumber.create(2), PositiveNumber.create(10)).toDto()],
+            shippingAddress: "123 Main St",
+            status: OrderStatus.Created,
+        };
+        
+        const order = Order.createFrom(dto);
+        
+        const orderDto = order.toDto();
+        expect(orderDto).toBeDefined();
+        expect(orderDto.items.length).toBe(1);
+        expect(orderDto.shippingAddress).toBe("123 Main St");
+    });
 });

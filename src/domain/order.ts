@@ -10,6 +10,20 @@ export enum OrderStatus {
 
 export type DiscountCode = "DISCOUNT20";
 
+export type OrderItemDto = {
+    productId: string;
+    quantity: number;
+    price: number;
+}
+
+export type OrderDto = {
+    id: string;
+    items: OrderItemDto[];
+    shippingAddress: string;
+    status: OrderStatus;
+    discountCode?: DiscountCode;
+}
+
 export class Order {
     private constructor(
         private readonly id: Id,
@@ -28,6 +42,16 @@ export class Order {
             shippingAddress, 
             OrderStatus.Created, 
             discountCode
+        );
+    }
+
+    static createFrom(dto: OrderDto): Order {
+        return new Order(
+            Id.createFrom(dto.id),
+            dto.items.map(item => new OrderItem(Id.createFrom(item.productId), PositiveNumber.create(item.quantity), PositiveNumber.create(item.price))),
+            Address.create(dto.shippingAddress),
+            OrderStatus.Created,
+            dto.discountCode
         );
     }
 

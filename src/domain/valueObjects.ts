@@ -46,6 +46,10 @@ export class Id {
         return new Id(uuid());
     }
 
+    static createFrom(value: string): Id {
+        return new Id(value);
+    }
+
     equals(other: Id): boolean {
         return this.value === other.value;
     }

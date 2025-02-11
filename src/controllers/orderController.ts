@@ -98,22 +98,34 @@ export const completeOrder = async (req: Request, res: Response) => {
     try {
         console.log("POST /orders/:id/complete");
         const { id } = req.params;
-        const order = await OrderModel.findById(id);
-        if (!order) {
+        const mongoDoc = await OrderModel.findById(id);
+        if (!mongoDoc) {
             return;
         }
-
-        if (order.status !== OrderStatus.Created) {
-            return res.send(`Cannot complete an order with status: ${order.status}`);
-        }
-
-        order.status = OrderStatus.Completed;
-        await order.save();
+        const orderDto = {
+            id: (mongoDoc._id as string),
+            items: mongoDoc.items,
+            shippingAddress: mongoDoc.shippingAddress,
+            status: mongoDoc.status,
+            discountCode: mongoDoc.discountCode
+        };
+        const order = Order.createFrom(orderDto);
+        order.complete();
+        const updatedOrderDto = order.toDto();
+        const updatedOrder = new OrderModel({
+            _id: id,
+            items: updatedOrderDto.items,
+            shippingAddress: updatedOrderDto.shippingAddress,
+            status: updatedOrderDto.status,
+            discountCode: updatedOrderDto.discountCode
+        });
+        await OrderModel.findOneAndReplace({ _id: id }, updatedOrder, { new: true });
         res.send(`Order with id ${id} completed`);
     } catch (error) {
         if (error instanceof Error && error.name === 'CastError') {
             return res.status(404).send('Order not found to complete');
         }
+        console.log(error);
         res.status(500).send('Error completing order');
     }
 };
