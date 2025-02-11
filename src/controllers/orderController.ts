@@ -1,34 +1,42 @@
 import { Request, Response } from 'express';
 import { OrderModel } from '../models/orderModel';
-import { OrderStatus } from '../domain/order';
+import { OrderStatus, Order } from '../domain/order';
+import { Address, OrderItem } from '../domain/valueObjects';
+import { PositiveNumber } from '../domain/valueObjects';
+import { DomainError } from '../domain/domainError';
 
 // Create a new order
 export const createOrder = async (req: Request, res: Response) => {
     console.log("POST /orders");
-    const { items, discountCode, shippingAddress } = req.body;
-
-    if (!items || !Array.isArray(items) || items.length === 0) {
-        return res.status(400).send('The order must have at least one item');
+    try{
+        const { items, discountCode, shippingAddress } = req.body;
+        const orderItems = items.map((item: any) => 
+            new OrderItem(
+                item.productId,
+                PositiveNumber.create(item.quantity),
+                PositiveNumber.create(item.price)
+            )
+        ); 
+        const order = Order.create(
+            orderItems,
+            Address.create(shippingAddress),
+            discountCode
+        );
+        const orderDto = order.toDto();
+        const newOrder = new OrderModel({
+            items: orderDto.items,
+            discountCode: orderDto.discountCode,
+            shippingAddress: orderDto.shippingAddress,
+            total: order.calculateTotal().value,
+        });
+        await newOrder.save();
+        res.send(`Order created with total: ${order.calculateTotal().value}`);
+    } 
+    catch (error) {
+        error instanceof DomainError 
+            ? res.status(400).send(error.message) 
+            : res.status(500).send('Error creating order');
     }
-
-    let total = 0;
-    for (const item of items) {
-        total += (item.price || 0) * (item.quantity || 0);
-    }
-
-    if (discountCode === 'DISCOUNT20') {
-        total = total * 0.8;
-    }
-
-    const newOrder = new OrderModel({
-        items,
-        discountCode,
-        shippingAddress,
-        total,
-    });
-
-    await newOrder.save();
-    res.send(`Order created with total: ${total}`);
 };
 
 // Get all orders

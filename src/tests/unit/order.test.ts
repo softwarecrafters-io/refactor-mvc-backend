@@ -58,7 +58,21 @@ describe("The Order", () => {
         ], Address.create("123 Main St"), "DISCOUNT20");
 
         order.complete();
-        
+
         expect(() => order.complete()).toThrow(`Cannot complete an order with status: ${OrderStatus.Completed}`);
+    });
+
+    it("transforms the order to a DTO", ()=>{
+        const order = Order.create([
+            new OrderItem(Id.create(), PositiveNumber.create(2), PositiveNumber.create(10)), 
+        ], Address.create("123 Main St"), "DISCOUNT20");
+       
+        const dto = order.toDto();
+
+        expect(dto.id).toBeDefined();
+        expect(dto.items.length).toBe(1);
+        expect(dto.shippingAddress).toBe("123 Main St");
+        expect(dto.status).toBe(OrderStatus.Created);
+        expect(dto.discountCode).toBe("DISCOUNT20");
     });
 });

@@ -2,7 +2,7 @@ import { DomainError } from "./domainError";
 import { v4 as uuid } from "uuid";
 
 export class PositiveNumber {
-    private constructor(private readonly value: number) {}
+    private constructor(readonly value: number) {}
 
     static create(value: number): PositiveNumber {
         if (value < 0) {
@@ -25,7 +25,7 @@ export class PositiveNumber {
 }
 
 export class Address {
-    private constructor(private readonly value: string) {}
+    private constructor(readonly value: string) {}
 
     static create(value: string): Address {
         if (!value || value.trim() === "") {
@@ -40,7 +40,7 @@ export class Address {
 }
 
 export class Id {
-    private constructor(private readonly value: string) {}
+    private constructor(readonly value: string) {}
 
     static create(): Id {
         return new Id(uuid());
@@ -72,5 +72,13 @@ export class OrderItem {
 
     calculateSubtotal(): PositiveNumber {
         return this.price.multiply(this.quantity);
+    }
+
+    toDto(){
+        return {
+            productId: this.productId.value,
+            quantity: this.quantity.value,
+            price: this.price.value
+        }
     }
 }

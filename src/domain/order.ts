@@ -66,4 +66,14 @@ export class Order {
     isCompleted(): boolean {
         return this.status === OrderStatus.Completed;
     }
+
+    toDto(){
+        return {
+            id: this.id.value,
+            items: this.items.map(item => item.toDto()),
+            shippingAddress: this.shippingAddress.value,
+            status: this.status,
+            discountCode: this.discountCode
+        }
+    }
 }
