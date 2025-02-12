@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { OrderModel } from '../models/orderModel';
-import { OrderStatus, Order } from '../domain/order';
-import { Address, OrderItem } from '../domain/valueObjects';
-import { PositiveNumber } from '../domain/valueObjects';
-import { DomainError } from '../domain/domainError';
+import { OrderStatus, Order } from '../../domain/order';
+import { Address, OrderItem } from '../../domain/valueObjects';
+import { PositiveNumber } from '../../domain/valueObjects';
+import { DomainError } from '../../domain/domainError';
 
 // Create a new order
 export const createOrder = async (req: Request, res: Response) => {

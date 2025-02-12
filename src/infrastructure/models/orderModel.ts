@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
-import { DiscountCode, OrderStatus } from '../domain/order';
+import { DiscountCode, OrderStatus } from '../../domain/order';
 
 export interface IOrder extends Document {
     items: {

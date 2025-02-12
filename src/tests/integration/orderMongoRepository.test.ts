@@ -2,34 +2,13 @@ import dotenv from 'dotenv';
 import mongoose, { Model } from 'mongoose';
 import { Address, Id, OrderItem, PositiveNumber } from '../../domain/valueObjects';
 import { Order, OrderStatus } from '../../domain/order';
-import { OrderModel } from '../../models/orderModel';
-import { OrderRepository } from '../../domain/repositories';
+import { OrderModel } from '../../infrastructure/models/orderModel';
+import { OrderMongoRepository } from '../../infrastructure/orderMongoRepository';
+
 dotenv.config({
     path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env'
 });
 
-class OrderMongoRepository implements OrderRepository {
-    findAll(): Promise<Order[]> {
-        throw new Error('Method not implemented.');
-    }
-    findById(id: Id): Promise<Order | undefined> {
-        throw new Error('Method not implemented.');
-    }
-    async save(order: Order): Promise<void> {
-        const orderDto = order.toDto();
-        const mongoOrder = new OrderModel({
-            id: orderDto.id,
-            items: orderDto.items,
-            shippingAddress: orderDto.shippingAddress,
-            status: orderDto.status,
-            discountCode: orderDto.discountCode
-        });
-        await mongoOrder.save();
-    }
-    delete(order: Order): Promise<void> {
-        throw new Error('Method not implemented.');
-    }
-}
 
 describe('OrderMongoRepository', () => {
     beforeAll(async () => {

@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { createServer } from '../../app';
+import { createServer } from '../../infrastructure/app';
 import { Server } from 'http';
 import dotenv from 'dotenv';
 dotenv.config({
