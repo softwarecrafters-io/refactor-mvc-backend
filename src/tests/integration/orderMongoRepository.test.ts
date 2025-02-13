@@ -2,17 +2,14 @@ import dotenv from 'dotenv';
 import mongoose, { Model } from 'mongoose';
 import { Address, Id, OrderItem, PositiveNumber } from '../../domain/valueObjects';
 import { Order, OrderStatus } from '../../domain/order';
-import { OrderModel } from '../../infrastructure/models/orderModel';
-import { OrderMongoRepository } from '../../infrastructure/orderMongoRepository';
-
-dotenv.config({
-    path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env'
-});
+import {OrderModel, OrderMongoRepository} from '../../infrastructure/orderMongoRepository';
 
 
 describe('OrderMongoRepository', () => {
+    let repository: OrderMongoRepository;
     beforeAll(async () => {
-        await mongoose.connect(process.env.MONGODB_URI as string);
+        const dbUrl = "mongodb://127.0.0.1:27017/db_orders_mongo_repository";
+        repository = await OrderMongoRepository.create(dbUrl);
         await mongoose.connection.dropDatabase();
     });
 
@@ -35,7 +32,6 @@ describe('OrderMongoRepository', () => {
             [item],
             Address.create("Test address")
         );
-        const repository = new OrderMongoRepository();
         // Act
         await repository.save(order);
         // Assert

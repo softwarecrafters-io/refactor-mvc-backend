@@ -1,22 +1,22 @@
 import { Request, Response } from 'express';
-import { OrderModel } from '../models/orderModel';
 import { OrderStatus, Order } from '../../domain/order';
 import { Address, OrderItem } from '../../domain/valueObjects';
 import { PositiveNumber } from '../../domain/valueObjects';
 import { DomainError } from '../../domain/domainError';
+import {OrderModel} from "../orderMongoRepository";
 
 // Create a new order
 export const createOrder = async (req: Request, res: Response) => {
     console.log("POST /orders");
     try{
         const { items, discountCode, shippingAddress } = req.body;
-        const orderItems = items.map((item: any) => 
+        const orderItems = items.map((item: any) =>
             new OrderItem(
                 item.productId,
                 PositiveNumber.create(item.quantity),
                 PositiveNumber.create(item.price)
             )
-        ); 
+        );
         const order = Order.create(
             orderItems,
             Address.create(shippingAddress),
@@ -31,10 +31,10 @@ export const createOrder = async (req: Request, res: Response) => {
         });
         await newOrder.save();
         res.send(`Order created with total: ${order.calculateTotal().value}`);
-    } 
+    }
     catch (error) {
-        error instanceof DomainError 
-            ? res.status(400).send(error.message) 
+        error instanceof DomainError
+            ? res.status(400).send(error.message)
             : res.status(500).send('Error creating order');
     }
 };
