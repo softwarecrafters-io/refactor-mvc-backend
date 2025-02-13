@@ -4,7 +4,7 @@ import { Id } from "../domain/valueObjects";
 import {Document, Model, Mongoose, Schema} from "mongoose";
 import mongoose from "mongoose";
 
-interface IOrder extends Document {
+interface MongooseOrder extends Document {
     items: {
         productId: string;
         quantity: number;
@@ -31,7 +31,7 @@ const OrderSchema: Schema = new Schema({
     id: { type: String },
 });
 
-export const OrderModel: Model<IOrder> = mongoose.model<IOrder>('Order', OrderSchema);
+export const OrderModel: Model<MongooseOrder> = mongoose.model<MongooseOrder>('Order', OrderSchema);
 
 export class OrderMongoRepository implements OrderRepository {
 
@@ -44,15 +44,19 @@ export class OrderMongoRepository implements OrderRepository {
 
     async findAll(): Promise<Order[]> {
         const orders = await this.mongooseModel().find();
-        return orders.map(order => Order.createFrom({
+        return orders.map(this.toOrderEntity);
+    }
+
+    private toOrderEntity(order: MongooseOrder): Order {
+        return Order.createFrom({
             id: order.id,
             items: order.items,
             shippingAddress: order.shippingAddress,
             status: order.status,
             discountCode: order.discountCode
-        }));
+        });
     }
-    
+
     findById(id: Id): Promise<Order | undefined> {
         throw new Error('Method not implemented.');
     }
@@ -72,7 +76,7 @@ export class OrderMongoRepository implements OrderRepository {
         throw new Error('Method not implemented.');
     }
 
-    private mongooseModel(): Model<IOrder> {
-        return this.client.model<IOrder>('Order');
+    private mongooseModel(): Model<MongooseOrder> {
+        return this.client.model<MongooseOrder>('Order');
     }
 }
