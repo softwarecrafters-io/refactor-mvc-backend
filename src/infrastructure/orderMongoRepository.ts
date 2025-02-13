@@ -57,9 +57,11 @@ export class OrderMongoRepository implements OrderRepository {
         });
     }
 
-    findById(id: Id): Promise<Order | undefined> {
-        throw new Error('Method not implemented.');
+    async findById(id: Id): Promise<Order | undefined> {
+        const mongooseOrder = await this.mongooseModel().findOne({ id: id.value });
+        return mongooseOrder ? this.toOrderEntity(mongooseOrder) : undefined;
     }
+
     async save(order: Order): Promise<void> {
         const orderDto = order.toDto();
         const mongooseModel = this.mongooseModel();
@@ -72,8 +74,9 @@ export class OrderMongoRepository implements OrderRepository {
         });
         await mongoOrder.save();
     }
-    delete(order: Order): Promise<void> {
-        throw new Error('Method not implemented.');
+
+    async delete(order: Order): Promise<void> {
+        await this.mongooseModel().deleteOne({ id: order.toDto().id });
     }
 
     private mongooseModel(): Model<MongooseOrder> {

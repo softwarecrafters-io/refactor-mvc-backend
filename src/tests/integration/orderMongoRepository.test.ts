@@ -35,10 +35,10 @@ describe('OrderMongoRepository', () => {
         // Act
         await repository.save(order);
         // Assert
-        const savedOrder = await OrderModel.findOne({});
-        expect(savedOrder).not.toBeNull();
-        expect(savedOrder?.shippingAddress).toBe("Test address");
-        expect(savedOrder?.status).toBe(OrderStatus.Created);
+        const savedOrder = await repository.findAll();
+        expect(savedOrder[0]).not.toBeNull();
+        expect(savedOrder[0].toDto().shippingAddress).toBe("Test address");
+        expect(savedOrder[0].toDto().status).toBe(OrderStatus.Created);
     });
 
     it("finds all previously saved orders", async () => {
@@ -65,5 +65,68 @@ describe('OrderMongoRepository', () => {
         expect(orders[0].toDto().items[0].productId).toBe(item.productId.value);
         expect(orders[0].toDto().items[0].quantity).toBe(item.quantity.value);
         expect(orders[0].toDto().items[0].price).toBe(item.price.value);
+    });
+
+    it("finds a previously saved orders by id", async () => {
+        // Arrange
+        const item = new OrderItem(
+            Id.create(),
+            PositiveNumber.create(1),
+            PositiveNumber.create(100)
+        );
+        const order = Order.create(
+            [item],
+            Address.create("Test address"),
+            "DISCOUNT20"
+        );
+        await repository.save(order);
+        // Act
+        const id = Id.createFrom(order.toDto().id);
+        const foundOrder = await repository.findById(id);
+        // Assert
+        expect(foundOrder).not.toBeNull();
+        expect(foundOrder?.toDto().shippingAddress).toBe("Test address");
+        expect(foundOrder?.toDto().status).toBe(OrderStatus.Created);
+        expect(foundOrder?.toDto().discountCode).toBe("DISCOUNT20");
+    });
+
+    it("does not find an order if the id does not match", async () => {
+        // Arrange
+        const item = new OrderItem(
+            Id.create(),
+            PositiveNumber.create(1),
+            PositiveNumber.create(100)
+        );
+        const order = Order.create(
+            [item],
+            Address.create("Test address"),
+            "DISCOUNT20"
+        );
+        await repository.save(order);
+        // Act
+        const id = Id.createFrom("invalid-id");
+        const result = await repository.findById(id);
+        // Assert
+        expect(result).toBeUndefined();
+    });
+
+    it("deletes a previously saved order", async () => {
+        // Arrange
+        const item = new OrderItem(
+            Id.create(),
+            PositiveNumber.create(1),
+            PositiveNumber.create(100)
+        );
+        const order = Order.create(
+            [item],
+            Address.create("Test address"),
+            "DISCOUNT20"
+        );
+        await repository.save(order);
+        // Act
+        await repository.delete(order);
+        // Assert
+        const result = await repository.findById(Id.createFrom(order.toDto().id));
+        expect(result).toBeUndefined();
     });
 });
