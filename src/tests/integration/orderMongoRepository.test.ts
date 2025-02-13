@@ -40,4 +40,30 @@ describe('OrderMongoRepository', () => {
         expect(savedOrder?.shippingAddress).toBe("Test address");
         expect(savedOrder?.status).toBe(OrderStatus.Created);
     });
+
+    it("finds all previously saved orders", async () => {
+        // Arrange
+        const item = new OrderItem(
+            Id.create(),
+            PositiveNumber.create(1),
+            PositiveNumber.create(100)
+        );
+        const order = Order.create(
+            [item],
+            Address.create("Test address"),
+            "DISCOUNT20"
+        );
+        await repository.save(order);
+        // Act
+        const orders = await repository.findAll();
+        // Assert
+        expect(orders.length).toBe(1);
+        expect(orders[0].toDto().shippingAddress).toBe("Test address");
+        expect(orders[0].toDto().status).toBe(OrderStatus.Created);
+        expect(orders[0].toDto().discountCode).toBe("DISCOUNT20");
+        expect(orders[0].toDto().items.length).toBe(1);
+        expect(orders[0].toDto().items[0].productId).toBe(item.productId.value);
+        expect(orders[0].toDto().items[0].quantity).toBe(item.quantity.value);
+        expect(orders[0].toDto().items[0].price).toBe(item.price.value);
+    });
 });

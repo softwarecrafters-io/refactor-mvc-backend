@@ -42,9 +42,17 @@ export class OrderMongoRepository implements OrderRepository {
         return new OrderMongoRepository(client);
     }
 
-    findAll(): Promise<Order[]> {
-        throw new Error('Method not implemented.');
+    async findAll(): Promise<Order[]> {
+        const orders = await this.mongooseModel().find();
+        return orders.map(order => Order.createFrom({
+            id: order.id,
+            items: order.items,
+            shippingAddress: order.shippingAddress,
+            status: order.status,
+            discountCode: order.discountCode
+        }));
     }
+    
     findById(id: Id): Promise<Order | undefined> {
         throw new Error('Method not implemented.');
     }
