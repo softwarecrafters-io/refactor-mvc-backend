@@ -28,7 +28,7 @@ export class Order {
     private constructor(
         private readonly id: Id,
         private readonly items: OrderItem[],
-        private readonly shippingAddress: Address,
+        private shippingAddress: Address,
         private status: OrderStatus,
         private readonly discountCode?: DiscountCode
     ) {}
@@ -89,6 +89,10 @@ export class Order {
 
     isCompleted(): boolean {
         return this.status === OrderStatus.Completed;
+    }
+
+    updateShippingAddress(shippingAddress: Address) {
+        this.shippingAddress = shippingAddress;
     }
 
     toDto(){

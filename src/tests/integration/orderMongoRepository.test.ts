@@ -41,6 +41,27 @@ describe('OrderMongoRepository', () => {
         expect(savedOrder[0].toDto().status).toBe(OrderStatus.Created);
     });
 
+    it("updates a previously saved order", async () => {
+        // Arrange
+        const item = new OrderItem(
+            Id.create(),
+            PositiveNumber.create(1),
+            PositiveNumber.create(100)
+        );
+        const order = Order.create(
+            [item],
+            Address.create("Test address"),
+            "DISCOUNT20"
+        );
+        await repository.save(order);
+        // Act
+        order.updateShippingAddress(Address.create("Another address"));
+        await repository.save(order);
+        // Assert
+        const savedOrder = await repository.findAll();
+        expect(savedOrder[0].toDto().shippingAddress).toBe("Another address");
+    });
+
     it("finds all previously saved orders", async () => {
         // Arrange
         const item = new OrderItem(
@@ -129,4 +150,30 @@ describe('OrderMongoRepository', () => {
         const result = await repository.findById(Id.createFrom(order.toDto().id));
         expect(result).toBeUndefined();
     });
+
+    it("does not delete an order if the id does not match", async () => {
+        // Arrange
+        const item = new OrderItem(
+            Id.create(),
+            PositiveNumber.create(1),
+            PositiveNumber.create(100)
+        );
+        const order = Order.create(
+            [item],
+            Address.create("Test address"),
+            "DISCOUNT20"
+        );
+        await repository.save(order);
+        // Act
+        const anotherOrder = Order.create(
+            [item],
+            Address.create("Another address"),
+        );
+        await repository.delete(anotherOrder);
+        // Assert
+        const result = await repository.findById(Id.createFrom(order.toDto().id));
+        expect(result).not.toBeNull();
+    });
+
+    
 });

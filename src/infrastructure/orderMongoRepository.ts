@@ -65,14 +65,18 @@ export class OrderMongoRepository implements OrderRepository {
     async save(order: Order): Promise<void> {
         const orderDto = order.toDto();
         const mongooseModel = this.mongooseModel();
-        const mongoOrder = new mongooseModel({
-            id: orderDto.id,
-            items: orderDto.items,
-            shippingAddress: orderDto.shippingAddress,
-            status: orderDto.status,
-            discountCode: orderDto.discountCode
-        });
-        await mongoOrder.save();
+        
+        await mongooseModel.findOneAndUpdate(
+            { id: orderDto.id },
+            {
+                id: orderDto.id,
+                items: orderDto.items,
+                shippingAddress: orderDto.shippingAddress,
+                status: orderDto.status,
+                discountCode: orderDto.discountCode
+            },
+            { upsert: true }
+        );
     }
 
     async delete(order: Order): Promise<void> {

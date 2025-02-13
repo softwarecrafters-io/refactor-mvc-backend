@@ -91,4 +91,14 @@ describe("The Order", () => {
         expect(orderDto.items.length).toBe(1);
         expect(orderDto.shippingAddress).toBe("123 Main St");
     });
+
+    it("updates the shipping address of an order", ()=>{
+        const order = Order.create([
+            new OrderItem(Id.create(), PositiveNumber.create(2), PositiveNumber.create(10)), 
+        ], Address.create("123 Main St"));
+        
+        order.updateShippingAddress(Address.create("456 Main St"));
+
+        expect(order.toDto().shippingAddress).toBe("456 Main St");
+    });
 });
