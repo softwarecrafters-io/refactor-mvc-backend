@@ -49,18 +49,11 @@ export const updateOrder = async (req: Request, res: Response) => {
 
         const order = await OrderModel.findById(id);
         if (!order) {
-            return;
+            return res.status(404).send('Order not found');
         }
 
         if (shippingAddress) {
             order.shippingAddress = shippingAddress;
-        }
-
-        if (status) {
-            if (status === OrderStatus.Completed && order.items.length === 0) {
-                return res.send('Cannot complete an order without items');
-            }
-            order.status = status;
         }
 
         if (discountCode) {
@@ -80,9 +73,6 @@ export const updateOrder = async (req: Request, res: Response) => {
         await order.save();
         res.send(`Order updated. New status: ${order.status}`);
     } catch (error) {
-        if (error instanceof Error && error.name === 'CastError') {
-            return res.status(404).send('Order not found');
-        }
         res.status(500).send('Error updating order');
     }
 };
@@ -94,7 +84,7 @@ export const completeOrder = async (req: Request, res: Response) => {
         const { id } = req.params;
         const mongoDoc = await OrderModel.findById(id);
         if (!mongoDoc) {
-            return;
+            return res.status(404).send('Order not found to complete');
         }
         const orderDto = {
             id: (mongoDoc._id as string),
@@ -116,10 +106,6 @@ export const completeOrder = async (req: Request, res: Response) => {
         await OrderModel.findOneAndReplace({ _id: id }, updatedOrder, { new: true });
         res.send(`Order with id ${id} completed`);
     } catch (error) {
-        if (error instanceof Error && error.name === 'CastError') {
-            return res.status(404).send('Order not found to complete');
-        }
-        console.log(error);
         res.status(500).send('Error completing order');
     }
 };
@@ -127,12 +113,13 @@ export const completeOrder = async (req: Request, res: Response) => {
 // Delete order
 export const deleteOrder = async (req: Request, res: Response) => {
     try {
+        const order = await OrderModel.findById(req.params.id);
+        if (!order) {
+            return res.status(404).json('Order not found to delete');
+        }
         await OrderModel.findByIdAndDelete(req.params.id);
         res.send('Order deleted');
     } catch (error) {
-        if (error instanceof Error && error.name === 'CastError') {
-            return res.status(404).json('Order not found to delete');
-        }
-        res.status(500).send('Error deleting order');
+        res.status(500).json('Error deleting order');
     }
 };

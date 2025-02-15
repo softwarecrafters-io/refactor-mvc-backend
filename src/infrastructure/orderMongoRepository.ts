@@ -5,6 +5,7 @@ import {Document, Model, Mongoose, Schema} from "mongoose";
 import mongoose from "mongoose";
 
 interface MongooseOrder extends Document {
+    _id: string;
     items: {
         productId: string;
         quantity: number;
@@ -28,7 +29,7 @@ const OrderSchema: Schema = new Schema({
     discountCode: { type: String, required: false },
     shippingAddress: { type: String },
     total: { type: Number, default: 0 },
-    id: { type: String },
+    _id: { type: String },
 });
 
 export const OrderModel: Model<MongooseOrder> = mongoose.model<MongooseOrder>('Order', OrderSchema);
@@ -49,7 +50,7 @@ export class OrderMongoRepository implements OrderRepository {
 
     private toOrderEntity(order: MongooseOrder): Order {
         return Order.createFrom({
-            id: order.id,
+            id: order._id as string,
             items: order.items,
             shippingAddress: order.shippingAddress,
             status: order.status,
@@ -58,7 +59,7 @@ export class OrderMongoRepository implements OrderRepository {
     }
 
     async findById(id: Id): Promise<Order | undefined> {
-        const mongooseOrder = await this.mongooseModel().findOne({ id: id.value });
+        const mongooseOrder = await this.mongooseModel().findOne({ _id: id.value });
         return mongooseOrder ? this.toOrderEntity(mongooseOrder) : undefined;
     }
 
@@ -67,9 +68,9 @@ export class OrderMongoRepository implements OrderRepository {
         const mongooseModel = this.mongooseModel();
         
         await mongooseModel.findOneAndUpdate(
-            { id: orderDto.id },
+            { _id: orderDto.id },
             {
-                id: orderDto.id,
+                _id: orderDto.id,
                 items: orderDto.items,
                 shippingAddress: orderDto.shippingAddress,
                 status: orderDto.status,
@@ -80,7 +81,7 @@ export class OrderMongoRepository implements OrderRepository {
     }
 
     async delete(order: Order): Promise<void> {
-        await this.mongooseModel().deleteOne({ id: order.toDto().id });
+        await this.mongooseModel().deleteOne({ _id: order.toDto().id });
     }
 
     private mongooseModel(): Model<MongooseOrder> {
