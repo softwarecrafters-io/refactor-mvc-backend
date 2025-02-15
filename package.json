@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node dist/main.js",
     "dev": "NODE_ENV=dev concurrently \"tsc -b --watch\" \"node --watch dist/main.js\"",
-    "test": "NODE_ENV=test jest --forceExit"
+    "test": "NODE_ENV=test jest --forceExit",
+    "test:e2e": "NODE_ENV=test jest --testMatch=\"**/tests/e2e/**/*.test.ts\" --forceExit"
   },
   "keywords": [],
   "author": "",
