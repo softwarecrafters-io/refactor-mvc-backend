@@ -4,7 +4,7 @@ import { Address, OrderItem } from '../../domain/valueObjects';
 import { PositiveNumber } from '../../domain/valueObjects';
 import { DomainError } from '../../domain/domainError';
 import {OrderModel} from "../orderMongoRepository";
-
+import { createOrderRepository } from '../factory';
 // Create a new order
 export const createOrder = async (req: Request, res: Response) => {
     console.log("POST /orders");
@@ -22,14 +22,8 @@ export const createOrder = async (req: Request, res: Response) => {
             Address.create(shippingAddress),
             discountCode
         );
-        const orderDto = order.toDto();
-        const newOrder = new OrderModel({
-            items: orderDto.items,
-            discountCode: orderDto.discountCode,
-            shippingAddress: orderDto.shippingAddress,
-            total: order.calculateTotal().value,
-        });
-        await newOrder.save();
+        const orderRepository = await createOrderRepository();
+        await orderRepository.save(order);
         res.send(`Order created with total: ${order.calculateTotal().value}`);
     }
     catch (error) {
