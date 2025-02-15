@@ -22,18 +22,7 @@ describe('OrderMongoRepository', () => {
     });
 
     it("saves a given new valid order", async () => {
-        // Arrange
-        const item = new OrderItem(
-            Id.create(),
-            PositiveNumber.create(1),
-            PositiveNumber.create(100)
-        );
-        const order = Order.create(
-            [item],
-            Address.create("Test address")
-        );
-        // Act
-        await repository.save(order);
+        await createValidOrder(repository);
         // Assert
         const savedOrder = await repository.findAll();
         expect(savedOrder[0]).not.toBeNull();
@@ -43,17 +32,7 @@ describe('OrderMongoRepository', () => {
 
     it("updates a previously saved order", async () => {
         // Arrange
-        const item = new OrderItem(
-            Id.create(),
-            PositiveNumber.create(1),
-            PositiveNumber.create(100)
-        );
-        const order = Order.create(
-            [item],
-            Address.create("Test address"),
-            "DISCOUNT20"
-        );
-        await repository.save(order);
+        const order = await createValidOrder(repository);
         // Act
         order.updateShippingAddress(Address.create("Another address"));
         await repository.save(order);
@@ -90,17 +69,7 @@ describe('OrderMongoRepository', () => {
 
     it("finds a previously saved orders by id", async () => {
         // Arrange
-        const item = new OrderItem(
-            Id.create(),
-            PositiveNumber.create(1),
-            PositiveNumber.create(100)
-        );
-        const order = Order.create(
-            [item],
-            Address.create("Test address"),
-            "DISCOUNT20"
-        );
-        await repository.save(order);
+        const order = await createValidOrder(repository);
         // Act
         const id = Id.createFrom(order.toDto().id);
         const foundOrder = await repository.findById(id);
@@ -113,17 +82,7 @@ describe('OrderMongoRepository', () => {
 
     it("does not find an order if the id does not match", async () => {
         // Arrange
-        const item = new OrderItem(
-            Id.create(),
-            PositiveNumber.create(1),
-            PositiveNumber.create(100)
-        );
-        const order = Order.create(
-            [item],
-            Address.create("Test address"),
-            "DISCOUNT20"
-        );
-        await repository.save(order);
+        await createValidOrder(repository);
         // Act
         const id = Id.createFrom("invalid-id");
         const result = await repository.findById(id);
@@ -133,17 +92,7 @@ describe('OrderMongoRepository', () => {
 
     it("deletes a previously saved order", async () => {
         // Arrange
-        const item = new OrderItem(
-            Id.create(),
-            PositiveNumber.create(1),
-            PositiveNumber.create(100)
-        );
-        const order = Order.create(
-            [item],
-            Address.create("Test address"),
-            "DISCOUNT20"
-        );
-        await repository.save(order);
+        const order = await createValidOrder(repository);
         // Act
         await repository.delete(order);
         // Assert
@@ -177,3 +126,19 @@ describe('OrderMongoRepository', () => {
 
     
 });
+
+async function createValidOrder(repository: OrderMongoRepository): Promise<Order> {
+    const item = new OrderItem(
+        Id.create(),
+        PositiveNumber.create(1),
+        PositiveNumber.create(100)
+    );
+    const order = Order.create(
+        [item],
+        Address.create("Test address"),
+        "DISCOUNT20"
+    );
+    await repository.save(order);
+    return order;
+}
+
