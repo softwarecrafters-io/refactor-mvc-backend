@@ -101,4 +101,14 @@ describe("The Order", () => {
 
         expect(order.toDto().shippingAddress).toBe("456 Main St");
     });
+
+    it("updates the discount code of an order", ()=>{
+        const order = Order.create([
+            new OrderItem(Id.create(), PositiveNumber.create(2), PositiveNumber.create(10)), 
+        ], Address.create("123 Main St"));
+
+        order.updateDiscountCode("DISCOUNT20");
+
+        expect(order.toDto().discountCode).toBe("DISCOUNT20");
+    });
 });

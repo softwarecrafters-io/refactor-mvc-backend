@@ -30,7 +30,7 @@ export class Order {
         private readonly items: OrderItem[],
         private shippingAddress: Address,
         private status: OrderStatus,
-        private readonly discountCode?: DiscountCode
+        private discountCode?: DiscountCode
     ) {}
 
     static create(items: OrderItem[], shippingAddress: Address, discountCode?: DiscountCode): Order {
@@ -93,6 +93,10 @@ export class Order {
 
     updateShippingAddress(shippingAddress: Address) {
         this.shippingAddress = shippingAddress;
+    }
+
+    updateDiscountCode(discountCode: DiscountCode) {
+        this.discountCode = discountCode;
     }
 
     toDto(){
